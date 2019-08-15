@@ -1,0 +1,81 @@
+table.SudokuTable {
+    border: 2px solid #1C6EA4;
+    background-color: #EEEEEE;
+    text-align: center;
+    border-collapse: collapse;
+    float:left;
+    margin-top: 20px;
+}
+table.SudokuTable td {
+    border: 1px solid #00ff00;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 28px;
+    width:50px;
+}
+
+/* vertical */
+table.SudokuTable td:nth-child(3),
+table.SudokuTable td:nth-child(6) {border-right: 5px solid #555; }
+
+/* horizontal */
+table.SudokuTable tr:nth-child(3) td,
+table.SudokuTable tr:nth-child(6) td {border-bottom: 5px solid #555;}
+
+.cellRevealed {
+    background-color: #E2EBED;
+}
+.cellPickable {
+    background-color: #f4f3dc;
+}
+
+.gameButton {
+  border: 2px solid black;
+  border-color: #2196F3;
+  color: dodgerblue
+  font-size: 16px;
+  cursor: pointer;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+.gameButton:hover {
+  background: #2196F3;
+  color: white;
+}
+
+#stopwatch {
+    color: green;
+    background-color:white;
+    padding: 5px;
+    border: 2px solid #000;
+    width: 65px;
+    margin-left:15px;
+    float:left;
+}
+
+#gamestats {
+    color: blue;
+    background-color:white;
+    padding: 5px;
+    border: 2px solid #000;
+    width: 130px;
+    margin-left:15px;
+    float:left;
+}
+
+
+.numberpadTable {
+    background: #C8C8C8;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 20px;
+    cursor:pointer;
+}
+
+.numberpadTable td:hover {
+    background-color: #267aa6;
+}

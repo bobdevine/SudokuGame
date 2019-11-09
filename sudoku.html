@@ -12,12 +12,10 @@
 <body>
 
   <h1>Sudoku</h1>
-  <div id="stopwatch"></div>
-  <div id="gamestats">
-    Remaining: <span id="cellsRemaining">00</span>
-  </div>
-  <span id="GameMessage" style="margin-left:15px; font-size:28px; color:green">
-  </span>
+  <button class="gameButton" onclick="Sudoku.newGame(1);return false">
+    New Easy Game</button>
+  <button class="gameButton" onclick="Sudoku.newGame(2);return false">
+    New Hard Game</button>
   <br clear="both">
 
 <table class="SudokuTable" id="VisibleTable">
@@ -77,6 +75,11 @@
 </table>
 
 <br clear="both">
+  <div id="stopwatch"></div>
+  <div id="gamestats">
+    Remaining: <span id="cellsRemaining">00</span>
+  </div>
+<br clear="both">
 
   <p style="margin-top:20px;">
 
@@ -84,10 +87,8 @@
       Reveal One Cell</button>
     <button class="gameButton" onclick="Sudoku.revealBoard();return false">
       Reveal Board</button>
-    <button class="gameButton" onclick="Sudoku.newGame(1);return false">
-      New Easy Game</button>
-    <button class="gameButton" onclick="Sudoku.newGame(2);return false">
-      New Hard Game</button>
+  <span id="GameMessage" style="margin-left:15px; font-size:28px; color:green">
+  </span>
 
 <script>
   Sudoku.initGame(1);

@@ -6,12 +6,12 @@ var Timer = (function() {
 
 	function initTimer(el_id) {
 		id = el_id;
-		if(id === undefined) {
+		if (id === undefined) {
 			throw "Provide a valid Id!";
 		}
 		el = document.getElementById(id);
 
-		if(el === null) {
+		if (el === null) {
 			throw "Element does not exists!";
 		}
 		render();
@@ -29,13 +29,13 @@ var Timer = (function() {
 		render();
 	}
 	function startTimer() {
-		if(intervalId !== null) {
+		if (intervalId !== null) {
 			throw "Timer is already running!";
 		}
 		intervalId = setInterval(update, 1000);
 	}
 	function stopTimer() {
-		if(intervalId === null) {
+		if (intervalId === null) {
 			throw "Timer is not running!";
 		}
 		clearInterval(intervalId);

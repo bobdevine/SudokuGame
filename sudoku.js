@@ -3,7 +3,65 @@
 var Board = (function() {
     var hiddenBoard = new Array(81);
 
-    function genSimple() {
+    function rowSafe(lastRow, index) {
+	return (lastRow[index] === undefined);
+    }
+    
+    function colSafe(arr, index, num) {
+	//make sure the current number isn't already used in this column
+	for (var rowIndex = arr.length - 1; rowIndex >= 0; --rowIndex) {
+	    if (arr[rowIndex][index] === num) {
+		return false;
+	    }
+	}
+	return true;
+    }
+    
+    function boxSafe(boxesUsed, index) {
+	var indexBox = Math.floor(index / 3);
+	return (boxesUsed.indexOf(indexBox) < 0);
+    }
+    
+    //used to find a safe column to place the number in the current row
+    function findSafeIndex(boxesUsed, num, arr, lastRow, safeIndexes) {
+	for (var index = 0, rowLen = lastRow.length; index < rowLen; ++index) {
+	    if (rowSafe(lastRow, index) && colSafe(arr, index, num) && boxSafe(boxesUsed, index)) {
+		safeIndexes.push(index);
+	    }
+	}
+
+	return safeIndexes[Math.floor(Math.random() * safeIndexes.length)];
+    }
+
+    function placeNumber(num, arr) {
+        var lastRowIndex = arr.length - 1;
+        var lastRow = arr[lastRowIndex];
+        var rowsToCheck = lastRowIndex % 3;
+        var safeIndexes = [];
+        var randomSafeIndex;	
+        var horizontalBoxesUsed = [];
+
+        if (rowsToCheck > 0) {
+            for (var i = rowsToCheck; i > 0; --i) {
+                var horizontalBox = Math.floor(arr[lastRowIndex - i].indexOf(num) / 3);
+                horizontalBoxesUsed.push(horizontalBox);
+            }
+        }
+
+        //get a safe index to put the number in to the row
+        randomSafeIndex = findSafeIndex(horizontalBoxesUsed, num, arr, lastRow, safeIndexes);
+
+        //if there are no safe indexes return the number
+        if (randomSafeIndex === undefined) {
+            return true;
+        } else {
+            lastRow[randomSafeIndex] = num;
+            return false;
+        }
+    }
+
+    //-----------------------------------------------------------------
+    function _genSimple() {
 	/*************
         // one simple pattern to create a valid board
 	1,2,3,4,5,6,7,8,9   --> base row 1
@@ -91,66 +149,94 @@ var Board = (function() {
 	}
     }
     
+
     //-----------------------------------------------------------------
-
-    function rowSafe(lastRow, index) {
-	return (lastRow[index] === undefined);
-    }
+    const UNASSIGNED_CELL = 0;
     
-    function colSafe(arr, index, num) {
-	//make sure the current number isn't already used in this column
-	for (var rowIndex = arr.length - 1; rowIndex >= 0; --rowIndex) {
-	    if (arr[rowIndex][index] === num) {
-		return false;
+    function _genMedium() {
+	//alert("genMedium");
+	for (var row=0; row<9; row++) {
+	    for (var col=0; col<9; col++) {
+		hiddenBoard[row*9 + col] = UNASSIGNED_CELL;
 	    }
 	}
-	return true;
+	hiddenBoard[0] = Math.floor(Math.random() * 10);
+
+	fillMedium();
     }
     
-    function boxSafe(boxesUsed, index) {
-	var indexBox = Math.floor(index / 3);
-	return (boxesUsed.indexOf(indexBox) < 0);
-    }
-    
-    //used to find a safe column to place the number in the current row
-    function findSafeIndex(boxesUsed, num, arr, lastRow, safeIndexes) {
-	for (var index = 0, rowLen = lastRow.length; index < rowLen; ++index) {
-	    if (rowSafe(lastRow, index) && colSafe(arr, index, num) && boxSafe(boxesUsed, index)) {
-		safeIndexes.push(index);
+    function fillMedium() {
+	// If there is no unassigned location, we are done
+	var unassigned = findUnassignedLocation();
+	if (unassigned < 0)
+	    return true;
+
+	// try all values (ie, 1..9)
+	for (var value=1; value<=9; value++) {
+	    if (isSafe(unassigned, value)) {
+		hiddenBoard[unassigned] = value;
+		if (true == fillMedium()) {
+		    return true;
+		}
+		hiddenBoard[unassigned] = UNASSIGNED_CELL;
 	    }
 	}
-
-	return safeIndexes[Math.floor(Math.random() * safeIndexes.length)];
+	return false;	// this triggers backtracking
     }
 
-    function placeNumber(num, arr) {
-        var lastRowIndex = arr.length - 1;
-        var lastRow = arr[lastRowIndex];
-        var rowsToCheck = lastRowIndex % 3;
-        var safeIndexes = [];
-        var randomSafeIndex;	
-        var horizontalBoxesUsed = [];
-
-        if (rowsToCheck > 0) {
-            for (var i = rowsToCheck; i > 0; --i) {
-                var horizontalBox = Math.floor(arr[lastRowIndex - i].indexOf(num) / 3);
-                horizontalBoxesUsed.push(horizontalBox);
-            }
-        }
-
-        //get a safe index to put the number in to the row
-        randomSafeIndex = findSafeIndex(horizontalBoxesUsed, num, arr, lastRow, safeIndexes);
-
-        //if there are no safe indexes return the number
-        if (randomSafeIndex === undefined) {
-            return true;
-        } else {
-            lastRow[randomSafeIndex] = num;
-            return false;
-        }
+    function findUnassignedLocation() {
+	for (var i=0; i < 9*9; i++) {
+	    if (hiddenBoard[i] == UNASSIGNED_CELL)
+		return i;
+	}
+	return -1;
     }
 
-    function genHard(iteration = 0) {
+    function UsedInRow(row, num) {
+	for (var i=0; i<9; i++) {
+	    var cell = (row * 9) + i;
+	    if (hiddenBoard[cell] == num)
+		return true;
+	}
+	return false;
+    }
+    
+    function UsedInCol(col, num) {
+	for (var i=0; i<9; i++) {
+	    var cell = (i * 9) + col;
+	    if (hiddenBoard[cell] == num)
+		return true;
+	}
+	return false;
+    }
+    
+    function UsedInBox(row, col, num) {
+	var startRow = row - (row % 3);
+	var startCol = col - (col % 3);
+	for (var r=0; r<3; r++)
+	    for (var c=0; c<3; c++) {
+		var cell = (startRow + r) * 9;
+		cell += startCol + c;
+		if (hiddenBoard[cell] == num)
+		    return true;
+	    }
+	return false;
+    }
+
+    // checks whether it will be legal to assign num to the given row, col
+    function isSafe(spot, num) {
+	var row = Math.floor(spot / 9);
+	var col = spot % 9;
+	//console.log("isSafe() spot = " + spot + " row=" + row + " col=" + col);
+	return hiddenBoard[spot] == UNASSIGNED_CELL
+	    && !UsedInRow(row, num)
+	    && !UsedInCol(col, num)
+	    && !UsedInBox(row - row % 3, col - col % 3, num);
+    }
+
+    //-----------------------------------------------------------------
+    function _genHard(iteration = 0) {
+	//alert("genHard");
         var sudokuArray = [];
         for (var i = 0; i < 9; ++i) {
             sudokuArray.push(new Array(9));
@@ -162,7 +248,7 @@ var Board = (function() {
                 workingArray.push(sudokuArray.shift());
 
                 if (placeNumber(i, workingArray)) {
-                    return genHard(++iteration);
+                    return _genHard(++iteration);
                 }
             }
 
@@ -180,16 +266,19 @@ var Board = (function() {
     
     //-----------------------------------------------------------------
     
-    function getCell(row, col) {
+    function _getCell(row, col) {
 	return hiddenBoard[row*9 + col];	
     }
-    
+
+    // expose API
     return {
-	'genSimple': genSimple,
-	'genHard': genHard,
-	'get': getCell,
+	'genSimple': _genSimple,
+	'genMedium': _genMedium,
+	'genHard': _genHard,
+	'get': _getCell,
     };
 })();
+
 
 // globals...
 var Selected_Row = 0;
@@ -292,6 +381,7 @@ var Sudoku = (function() {
     function initGame(level) {
 	runGame(level, true);
     }
+
     function newGame(level) {
 	runGame(level, false);
     }
@@ -303,6 +393,8 @@ var Sudoku = (function() {
 	if (level == 1) {
 	    Board.genSimple();
 	} else if (level == 2) {
+	    Board.genMedium();
+	} else if (level == 3) {
 	    Board.genHard();
 	} else {
 	    alert("ERROR - Invalid game level ", + level);
@@ -405,7 +497,7 @@ var Sudoku = (function() {
     }
     
     function showBoard(level) {
-	var levelReveals = [81,36,40,24]; // debug, easy, hard, extreme
+	var levelReveals = [81,36,30,24]; // debug, easy, medium, hard
 	var openCells = 81;
 	// set all cells to hidden/playable
 	for (var row=0; row<9; row++) {

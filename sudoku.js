@@ -162,6 +162,13 @@ var Board = (function() {
 	}
 	hiddenBoard[0] = Math.floor(Math.random() * 10);
 
+	var firstRowValues = new Array(1,2,3,4,5,6,7,8,9);
+	for (var i=0; i<8; i++) {
+	    var pos = Math.floor(Math.random() * firstRowValues.length);
+	    hiddenBoard[i] = firstRowValues[pos];
+	    firstRowValues.splice(pos, 1);
+	}
+	hiddenBoard[8] = firstRowValues[0];
 	fillMedium();
     }
     
@@ -185,7 +192,7 @@ var Board = (function() {
     }
 
     function findUnassignedLocation() {
-	for (var i=0; i < 9*9; i++) {
+	for (var i=9; i < 9*9; i++) {
 	    if (hiddenBoard[i] == UNASSIGNED_CELL)
 		return i;
 	}
